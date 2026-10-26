@@ -1,5 +1,6 @@
 """Calculate performance metrics from one simulation run's event log."""
 
+#Chosen Metric: Delivery On-Time Rate: 
 import argparse
 import csv
 import json
@@ -8,6 +9,9 @@ from typing import Any, Dict, List, Optional
 
 from simulator.loaders import day_input_paths
 
+def hhmm_to_mins(time):
+    hours, mins = time.split(":")
+    return int(hours) * 60 + int(mins)
 
 def calculate_metrics(
     parcels: List[Dict[str, str]],
@@ -24,13 +28,63 @@ def calculate_metrics(
     midnight: "17:00" is 17 * 60 = 1020.
     """
 
-    # Illustration only: replace or extend this with your chosen metric.
+    # Build delivery lookup {parcel_id: delivery_time} and count trips
     number_of_trips = 0
+    delivered = {}
     for event in events:
         if event["event_type"] == "hub_departure":
             number_of_trips += 1
-    return {"number_of_trips": number_of_trips}
 
+        elif event["event_type"] == "delivery":
+            delivered[event["parcel_id"]] = event["time"]
+
+    # print(len(delivered)) check number of logged deliveries
+    # print(list(delivered.items())[:5])  [('P000089', 545.443), ('P000250', 548.136), ('P000057', 557.1659999999999), ('P000119', 563.743), ('P000310', 563.965)]
+    on_time = 0
+    late = 0
+    early = 0
+    undelivered = 0
+    total_late_mins = 0
+
+    for row in parcels:
+        parcel_id = row["parcel_id"]
+        start_time = hhmm_to_mins(row["delivery_window_start"])
+        end_time = hhmm_to_mins(row["delivery_window_end"])
+
+        if parcel_id not in delivered:
+            undelivered += 1
+        else:
+            t = delivered[parcel_id]
+            if t < start_time:
+                early += 1
+            elif t > end_time:
+                late += 1
+                total_late_mins += t - end_time
+            else:
+                on_time += 1
+
+    total = len(parcels)
+
+    #We aim to increase on time rate by improving delivery rate and reduce lateness of delivery
+    #PRIMARY Metric 1: on_time_rate = on time parcels / all parcels
+    on_time_rate = on_time / total
+
+    #SECONDARY Metric 1: delivery rate
+    delivery_rate = (on_time + early + late) / total
+
+    #SECONDARY Metric 2: avg lateness
+    avg_lateness = total_late_mins / late if late > 0 else 0
+
+    return {
+        "on_time_rate" : on_time_rate,
+        "delivery_rate" : delivery_rate,
+        "avg_lateness": avg_lateness,
+        "on_time": on_time,
+        "late": late,
+        "early": early,
+        "undelivered": undelivered,
+        "number_of_trips": number_of_trips,
+    }
 
 def main(argv: Optional[List[str]] = None) -> int:
     """Load one day's inputs and event log, then write the metrics report."""
