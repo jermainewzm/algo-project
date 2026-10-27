@@ -20,9 +20,3 @@ print("Avg on-time rate:", sum(on_time) / 20)
 print("Avg delivery rate:", sum(delivery) / 20)
 print("Avg lateness:", sum(lateness) / 20)
 
-
-#Results from running the above;
-
-# Avg on-time rate: 0.27408332405410796  (27.4%)
-# Avg delivery rate: 0.40453124911193894  (40.5%)
-# Avg lateness: 214.1658680673269 approximately 3.6hrs
