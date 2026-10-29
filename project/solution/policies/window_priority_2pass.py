@@ -18,6 +18,10 @@ def dispatch(parcel: Dict[str, Parcel], context: SimulationContext) -> List[str]
     Difference from the baseline: preferred delivery windows are NOT ignored.
 
     Overall Time Complexity: O(n log n)
+    where n = number of parcels
+    
+    Overall Space Complexity: O(n)
+    heap and remaining list each hold at most n parcels
     """
     distances = context["travel_distance"]
     departure = context["current_time"] + context["departure_delay"]
@@ -29,7 +33,7 @@ def dispatch(parcel: Dict[str, Parcel], context: SimulationContext) -> List[str]
         for parcel_id, record in parcel.items()
         if record["vehicle_assigned"] is None
     ]
-    heapq.heapify(waiting)  
+    heapq.heapify(waiting)  #T: O(n)
 
     route: List[str] = []
     remaining = []  # parcels skipped in pass 1

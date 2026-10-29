@@ -13,14 +13,19 @@ def dispatch(parcel: Dict[str, Parcel], context: SimulationContext) -> List[str]
     Waiting parcels are sorted by delivery-window end, so the most urgent go first.
     A parcel that would break capacity, range or the return cutoff is skipped.
 
-    This approach is kept here as justification for the 2 pass approach in window_priority_2pass.py, which is more efficient 
+    This approach is kept here as justification for the 2 pass approach in window_priority_2pass.py.
+    Overall Time Complexity: O(n log n)
+    where n = number of parcels
+
+    Overall Space Complexity: O(n)
+    sorted list and route each hold at most n parcels
     """
     distances = context["travel_distance"]
     departure = context["current_time"] + context["departure_delay"]
     max_distance = context["max_trip_distance_km"]
 
     # Earliest deadline first; parcel ID breaks ties
-    waiting = sorted(
+    waiting = sorted(  #O(n log n)
         (parcel_id for parcel_id, record in parcel.items() if record["vehicle_assigned"] is None),
         key=lambda parcel_id: (parcel[parcel_id]["delivery_window_end"], parcel_id),
     )
@@ -30,7 +35,7 @@ def dispatch(parcel: Dict[str, Parcel], context: SimulationContext) -> List[str]
     travelled = 0.0  # km from the hub to the route's last stop
     location = HUB
 
-    for parcel_id in waiting:
+    for parcel_id in waiting: #O(n)
         record = parcel[parcel_id]
         if load + record["size"] > context["capacity"]:
             continue
