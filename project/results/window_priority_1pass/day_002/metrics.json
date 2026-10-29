@@ -1,0 +1,10 @@
+{
+  "on_time_rate": 0.17875647668393782,
+  "delivery_rate": 0.4961139896373057,
+  "avg_lateness": 133.7694163265307,
+  "on_time": 138,
+  "late": 245,
+  "early": 0,
+  "undelivered": 389,
+  "number_of_trips": 21
+}
