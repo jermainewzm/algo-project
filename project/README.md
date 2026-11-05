@@ -1,44 +1,88 @@
-# IS115 Project README (JUST PLACEHOLDER FOR NOW SUBJECT TO REFINEMENTS)
+# IS115 Project: Last-Mile Delivery Planning (G1T1)
 
-## 1. Run a simulation (one day)
+Dispatch policies for a last-mile delivery simulator, evaluated on 20 days of historical data.
+
+## Requirements
+- Python 3.9+
+- Standard library only (no installs needed)
+- Run all commands from the project root
+- On Windows, use `python` instead of `python3`
+
+## Policies
+
+| Policy | Module | Description |
+|---|---|---|
+| Baseline | `solution.policies.baseline` | FIFO (provided, unchanged) |
+| EDF 1-pass (variant) | `solution.policies.window_priority_1pass` | Earliest deadline first, single pass, no arrival-time check |
+| Policy 1: EDF | `solution.policies.window_priority_2pass` | Earliest deadline first using a min-heap; pass 1 = on-time parcels, pass 2 = fill spare capacity |
+| Policy 2: NN | `solution.policies.nearest_neighbour` | Nearest Neighbour (Greedy 1) routing; ignores delivery windows |
+| Policy 3: WA-NN (recommended) | `solution.policies.nearest_neighbour_window` | Nearest Neighbour with per-parcel window check; pass 1 = on-time, pass 2 = late; early parcels held back |
+
+## 1. Run one policy for one day
+
 ```
-python3 -m simulator --policy solution.policies.baseline --data data --day day_001 --output results/baseline/day_001
+python3 -m simulator --policy solution.policies.nearest_neighbour_window --data data --day day_001 --output results/nearest_neighbour_window/day_001
+python3 -m solution.performance_monitor --data data --day day_001 --log results/nearest_neighbour_window/day_001/log.txt
 ```
-Replace `baseline` with any policy in `solution/policies/`.
 
+The simulator writes `log.txt`; the performance monitor writes `metrics.json` next to it.
+Replace `nearest_neighbour_window` with any module name from the table above.
 
-## 2. Calculate metrics (one day)
-```
-python3 -m solution.performance_monitor --data data --day day_001 --log results/baseline/day_001/log.txt
-```
-Writes `metrics.json` next to the log.
-
-
-## 3. Run all 20 days
+## 2. Reproduce all results (all policies, all 20 days)
 
 Mac/Linux:
 ```
-for i in $(seq -f "%03g" 1 20); do
-  python3 -m simulator --policy solution.policies.baseline --data data --day day_$i --output results/baseline/day_$i
-  python3 -m solution.performance_monitor --data data --day day_$i --log results/baseline/day_$i/log.txt
+for policy in baseline window_priority_1pass window_priority_2pass nearest_neighbour nearest_neighbour_window; do
+  for i in $(seq -f "%03g" 1 20); do
+    python3 -m simulator --policy solution.policies.$policy --data data --day day_$i --output results/$policy/day_$i
+    python3 -m solution.performance_monitor --data data --day day_$i --log results/$policy/day_$i/log.txt
+  done
 done
 ```
 
 Windows (PowerShell):
 ```
-foreach ($i in 1..20) {
-  $day = "day_{0:D3}" -f $i
-  python -m simulator --policy solution.policies.baseline --data data --day $day --output results/baseline/$day
-  python -m solution.performance_monitor --data data --day $day --log results/baseline/$day/log.txt
+foreach ($policy in "baseline","window_priority_1pass","window_priority_2pass","nearest_neighbour","nearest_neighbour_window") {
+  foreach ($i in 1..20) {
+    $day = "day_{0:D3}" -f $i
+    python -m simulator --policy solution.policies.$policy --data data --day $day --output results/$policy/$day
+    python -m solution.performance_monitor --data data --day $day --log results/$policy/$day/log.txt
+  }
 }
 ```
 
-## 4. Average results over 20 days
+## 3. Average results over 20 days
+
 ```
-python3 solution/summarise_results.py baseline
+python3 solution/summarise_results.py nearest_neighbour_window
 ```
 
-## Metrics
-- `on_time_rate` (primary): parcels delivered within window ÷ all parcels
+Replace `nearest_neighbour_window` with any policy folder name in `results/`.
+
+### Expected results (mean over 20 days)
+
+| Policy | On-time rate | Delivery rate | Avg lateness |
+|---|---|---|---|
+| baseline | 27.4% | 40.5% | 214 min |
+| window_priority_1pass | 18.0% | 52.3% | 136 min |
+| window_priority_2pass | 40.3% | 46.1% | 271 min |
+| nearest_neighbour | 64.0% | 95.9% | 49 min |
+| nearest_neighbour_window | 80.0% | 96.0% | 83 min |
+
+All policies are deterministic (ties are broken by parcel ID / location ID), so re-running produces identical results.
+
+## Metrics (`solution/performance_monitor.py`)
+- `on_time_rate` (primary): parcels delivered within their window ÷ all parcels
 - `delivery_rate`: parcels delivered ÷ all parcels
-- `avg_lateness`: average minutes late, over late parcels only
+- `avg_lateness`: average minutes past window end, over late parcels only
+- Also reported: `on_time`, `late`, `early`, `undelivered`, `number_of_trips`
+
+## Project structure
+```
+solution/
+├── performance_monitor.py      # metric implementation
+├── summarise_results.py        # 20-day averages for a policy
+└── policies/
+    ├── baseline.py             # provided, unchanged
+    ├── window_priority_1pass.py
+    ├──
