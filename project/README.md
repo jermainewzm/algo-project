@@ -73,6 +73,15 @@ Early, Late and Undelivered are parcels per day. Trips are per day across the fl
 
 All policies are deterministic (ties are broken by parcel ID / location ID), so re-running produces identical results.
 
+## 4. Compare all policies day by day
+
+```
+python3 solution/daily_on_time_rates.py
+```
+
+Prints the on-time rate (%) of every policy for each of the 20 days, with the 20-day average in the last row.
+The ranking of the policies is the same on every day.
+
 ## Metrics (`solution/performance_monitor.py`)
 - `on_time_rate` (primary): parcels delivered within their window ÷ all parcels
 - `delivery_rate`: parcels delivered ÷ all parcels
@@ -84,6 +93,7 @@ All policies are deterministic (ties are broken by parcel ID / location ID), so 
 solution/
 ├── performance_monitor.py             # metric implementation
 ├── summarise_results.py               # 20-day averages for a policy
+├── daily_on_time_rates.py             # on-time rate of every policy, day by day
 └── policies/
     ├── baseline.py                    # provided, unchanged
     ├── helpers.py                     # shared helper: group waiting parcels by location
