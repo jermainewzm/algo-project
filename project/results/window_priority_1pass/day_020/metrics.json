@@ -6,5 +6,64 @@
   "late": 315,
   "early": 0,
   "undelivered": 340,
-  "number_of_trips": 22
+  "number_of_trips": 22,
+  "first_vehicle_return": 592.098,
+  "parcels_by_arrival_hour": {
+    "08:00": {
+      "parcels": 238,
+      "on_time": 117,
+      "early": 0,
+      "late": 0,
+      "undelivered": 121
+    },
+    "16:00": {
+      "parcels": 22,
+      "on_time": 0,
+      "early": 0,
+      "late": 0,
+      "undelivered": 22
+    },
+    "11:00": {
+      "parcels": 209,
+      "on_time": 1,
+      "early": 0,
+      "late": 169,
+      "undelivered": 39
+    },
+    "09:00": {
+      "parcels": 67,
+      "on_time": 2,
+      "early": 0,
+      "late": 65,
+      "undelivered": 0
+    },
+    "15:00": {
+      "parcels": 73,
+      "on_time": 6,
+      "early": 0,
+      "late": 0,
+      "undelivered": 67
+    },
+    "12:00": {
+      "parcels": 108,
+      "on_time": 1,
+      "early": 0,
+      "late": 81,
+      "undelivered": 26
+    },
+    "10:00": {
+      "parcels": 60,
+      "on_time": 0,
+      "early": 0,
+      "late": 0,
+      "undelivered": 60
+    },
+    "17:00": {
+      "parcels": 5,
+      "on_time": 0,
+      "early": 0,
+      "late": 0,
+      "undelivered": 5
+    }
+  }
 }
