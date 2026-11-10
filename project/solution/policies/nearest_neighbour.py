@@ -2,6 +2,7 @@
 
 from typing import Dict, List
 from simulator.models import Parcel, SimulationContext
+from solution.policies.helpers import group_waiting_by_location
 HUB = "HUB"
 
 def dispatch(parcel: Dict[str, Parcel], context: SimulationContext) -> List[str]:
@@ -47,17 +48,7 @@ def dispatch(parcel: Dict[str, Parcel], context: SimulationContext) -> List[str]
     cutoff = context["return_cutoff"]
 
     #Group waiting parcels by location
-    groups = {}
-
-    for parcel_id in sorted(parcel): #sorted() = O(n log n)
-        record = parcel[parcel_id]
-
-        if record["vehicle_assigned"] is None:
-            loc = record["delivery_location_id"]
-
-            if loc not in groups:
-                groups[loc] = []
-            groups[loc].append(parcel_id)
+    groups = group_waiting_by_location(parcel)
 
     selected_parcels: List[str] = []
     load = 0.0

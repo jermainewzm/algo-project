@@ -3,6 +3,7 @@
 from typing import Dict, List
 
 from simulator.models import Parcel, SimulationContext
+from solution.policies.helpers import group_waiting_by_location
 
 HUB = "HUB"
 
@@ -17,13 +18,18 @@ def dispatch(parcel: Dict[str, Parcel], context: SimulationContext) -> List[str]
     Pass 2: fill spare capacity with parcels that would arrive LATE.
     Parcels that would arrive EARLY are left at the hub for a later trip.
 
-    Overall Time Complexity: O(n log n),
+    Overall Time Complexity: O(n log n + k * n),
     where n = number of parcels that have arrived at the hub
-    The time complexity is simplified from O(n log n + L * n)
-    where L = number of locations with waiting parcels
-    Since we know that the town has 36 delivery locations, so L <= 36, so we cna simplfiy to O(n log n)
+    and k = number of stops made on this trip.
+
+    A stop can be visited more than once here,
+    so k is not limited by the number of locations
+
+    The time complexity is simplified to O(n log n)
+    because k <= capacity/ smallest parcel size.
 
     Overall Space Complexity: O(n)
+
     groups, loaded_parcels and selected_parcels each hold at most n parcels
     """
     distances = context["travel_distance"]
@@ -32,17 +38,7 @@ def dispatch(parcel: Dict[str, Parcel], context: SimulationContext) -> List[str]
     cutoff = context["return_cutoff"]
 
     #Same as nearest neighbour, we group parcels by location
-    groups = {}
-    
-    for parcel_id in sorted(parcel): #sorted() = O(n log n)
-        record = parcel[parcel_id]
-    
-        if record["vehicle_assigned"] is None:
-            loc = record["delivery_location_id"]
-    
-            if loc not in groups:
-                groups[loc] = []
-            groups[loc].append(parcel_id)
+    groups = group_waiting_by_location(parcel)
     
     selected_parcels: List[str] = []
     load = 0.0
@@ -52,7 +48,8 @@ def dispatch(parcel: Dict[str, Parcel], context: SimulationContext) -> List[str]
 
     #note: Early parcels wont be loaded so they can wait at the hub for a later trip
     #Pass 1: we only load parcels on-time.
-    #At most L iterations, with each iteration scanning all waiting parcels n: O(L * n)
+    #Each round scans all waiting parcels. T: O(n),
+    #and each round adds one stop, so k rounds T: O(k * n)
     while True:
         best = None
         best_dist = None
@@ -107,7 +104,7 @@ def dispatch(parcel: Dict[str, Parcel], context: SimulationContext) -> List[str]
         location = best
 
     #Pass 2: late parcels are loaded to fill spare capacity
-    #At most L iterations, each scanning all waiting parcels: O(L * n)
+    #Here,same cost as pass 1: T: O(n) per round, one stop added per round
 
     while True:
         best = None

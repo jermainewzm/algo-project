@@ -61,13 +61,15 @@ Replace `nearest_neighbour_window` with any policy folder name in `results/`.
 
 ### Expected results (mean over 20 days)
 
-| Policy | On-time rate | Delivery rate | Avg lateness |
-|---|---|---|---|
-| baseline | 27.4% | 40.5% | 214 min |
-| window_priority_1pass | 18.0% | 52.3% | 136 min |
-| window_priority_2pass | 40.3% | 46.1% | 271 min |
-| nearest_neighbour | 64.0% | 95.9% | 49 min |
-| nearest_neighbour_window | 80.0% | 96.0% | 83 min |
+| Policy | On-time rate | Delivery rate | Avg lateness | Early | Late | Undelivered | Trips |
+|---|---|---|---|---|---|---|---|
+| baseline | 27.4% | 40.5% | 214 min | 0 | 104 | 472 | 20.7 |
+| window_priority_1pass | 18.0% | 52.3% | 136 min | 0 | 272 | 378 | 21.3 |
+| window_priority_2pass | 40.3% | 46.1% | 271 min | 0 | 46 | 428 | 20.8 |
+| nearest_neighbour | 64.0% | 95.9% | 49 min | 145 | 108 | 32 | 33.9 |
+| nearest_neighbour_window | 80.0% | 96.0% | 83 min | 0 | 127 | 31 | 34.3 |
+
+Early, Late and Undelivered are parcels per day. Trips are per day across the fleet.
 
 All policies are deterministic (ties are broken by parcel ID / location ID), so re-running produces identical results.
 
@@ -80,9 +82,15 @@ All policies are deterministic (ties are broken by parcel ID / location ID), so 
 ## Project structure
 ```
 solution/
-├── performance_monitor.py      # metric implementation
-├── summarise_results.py        # 20-day averages for a policy
+├── performance_monitor.py             # metric implementation
+├── summarise_results.py               # 20-day averages for a policy
 └── policies/
-    ├── baseline.py             # provided, unchanged
-    ├── window_priority_1pass.py
-    ├──
+    ├── baseline.py                    # provided, unchanged
+    ├── helpers.py                     # shared helper: group waiting parcels by location
+    ├── window_priority_1pass.py       # EDF 1-pass (variant)
+    ├── window_priority_2pass.py       # Policy 1: EDF (2-pass)
+    ├── nearest_neighbour.py           # Policy 2: NN
+    └── nearest_neighbour_window.py    # Policy 3: WA-NN (recommended)
+results/
+└── <policy>/day_001 ... day_020/      # log.txt and metrics.json for each day
+```
