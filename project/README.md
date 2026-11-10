@@ -5,6 +5,7 @@ Dispatch policies for a last-mile delivery simulator, evaluated on 20 days of hi
 ## Requirements
 - Python 3.9+
 - Standard library only (no installs needed)
+- Place the provided `data/` and `simulator/` folders in the project root before running (they are unchanged and not included in this submission)
 - Run all commands from the project root
 - On Windows, use `python` instead of `python3`
 
@@ -82,11 +83,24 @@ python3 solution/daily_on_time_rates.py
 Prints the on-time rate (%) of every policy for each of the 20 days.
 The ranking of the policies is the same on every day.
 
+## 5. On-time rate by arrival hour
+
+```
+python3 solution/hourly_on_time_rates.py nearest_neighbour_window
+```
+
+Prints, for one policy, the on-time rate and early deliveries by the hour parcels arrive at the hub, and the earliest time any vehicle returns from a trip.
+Replace `nearest_neighbour_window` with any policy folder name in `results/`.
+
+For `nearest_neighbour_window` the on-time rates are 95.3% (08:00), 0.0% (09:00), 86.7% (10:00), 79.5% (11:00), 74.4% (12:00), 95.0% (15:00), 15.4% (16:00) and 0.0% (17:00), and the earliest vehicle return is 10:01.
+
 ## Metrics (`solution/performance_monitor.py`)
 - `on_time_rate` (primary): parcels delivered within their window ÷ all parcels
 - `delivery_rate`: parcels delivered ÷ all parcels
 - `avg_lateness`: average minutes past window end, over late parcels only
 - Also reported: `on_time`, `late`, `early`, `undelivered`, `number_of_trips`
+- `parcels_by_arrival_hour`: the same counts (`parcels`, `on_time`, `early`, `late`, `undelivered`) split by the hour each parcel arrived at the hub
+- `first_vehicle_return`: time (minutes after midnight) the first vehicle returned from a trip
 
 ## Project structure
 ```
@@ -94,6 +108,7 @@ solution/
 ├── performance_monitor.py             # metric implementation
 ├── summarise_results.py               # 20-day averages for a policy
 ├── daily_on_time_rates.py             # on-time rate of every policy, day by day
+├── hourly_on_time_rates.py            # on-time rate by parcel arrival hour
 └── policies/
     ├── baseline.py                    # provided, unchanged
     ├── helpers.py                     # shared helper: group waiting parcels by location
