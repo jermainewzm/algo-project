@@ -79,7 +79,7 @@ All policies are deterministic (ties are broken by parcel ID / location ID), so 
 python3 solution/daily_on_time_rates.py
 ```
 
-Prints the on-time rate (%) of every policy for each of the 20 days, with the 20-day average in the last row.
+Prints the on-time rate (%) of every policy for each of the 20 days.
 The ranking of the policies is the same on every day.
 
 ## Metrics (`solution/performance_monitor.py`)
