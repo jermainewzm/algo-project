@@ -31,12 +31,18 @@ def calculate_metrics(
     # Build delivery lookup {parcel_id: delivery_time} and count trips
     number_of_trips = 0
     delivered = {}
+    first_vehicle_return = 0
     for event in events:
         if event["event_type"] == "hub_departure":
             number_of_trips += 1
 
         elif event["event_type"] == "delivery":
             delivered[event["parcel_id"]] = event["time"]
+
+        # time 480 (08:00) is the start of the day, not a real return
+        elif event["event_type"] == "vehicle_return" and event["time"] > 480:
+            if first_vehicle_return == 0:
+                first_vehicle_return = event["time"]
 
     # print(len(delivered)) check number of logged deliveries
     # print(list(delivered.items())[:5])  [('P000089', 545.443), ('P000250', 548.136), ('P000057', 557.1659999999999), ('P000119', 563.743), ('P000310', 563.965)]
@@ -46,25 +52,37 @@ def calculate_metrics(
     undelivered = 0
     total_late_mins = 0
 
+    parcels_by_arrival_hour = {}  # e.g. {"09:00": {"parcels": 62, "on_time": 0, "early": 0, "late": 62, "undelivered": 0}}
+
     for row in parcels:
         parcel_id = row["parcel_id"]
         start_time = hhmm_to_mins(row["delivery_window_start"])
         end_time = hhmm_to_mins(row["delivery_window_end"])
 
+        arrival_hour = hhmm_to_mins(row["arrival_time"]) // 60
+        hour = f"{arrival_hour:02d}:00"   # 9 → "09:00"
+        if hour not in parcels_by_arrival_hour:
+            parcels_by_arrival_hour[hour] = {"parcels": 0, "on_time": 0, "early": 0, "late": 0, "undelivered": 0}
+        parcels_by_arrival_hour[hour]["parcels"] += 1
+
         if parcel_id not in delivered:
             undelivered += 1
+            parcels_by_arrival_hour[hour]["undelivered"] += 1
         else:
             t = delivered[parcel_id]
             if t < start_time:
                 early += 1
+                parcels_by_arrival_hour[hour]["early"] += 1
             elif t > end_time:
                 late += 1
                 total_late_mins += t - end_time
+                parcels_by_arrival_hour[hour]["late"] += 1
             else:
                 on_time += 1
+                parcels_by_arrival_hour[hour]["on_time"] += 1
 
     total = len(parcels)
-
+    
     #We aim to increase on time rate by improving delivery rate and reduce lateness of delivery
     #PRIMARY Metric 1: on_time_rate = on time parcels / all parcels
     on_time_rate = on_time / total
@@ -84,6 +102,8 @@ def calculate_metrics(
         "early": early,
         "undelivered": undelivered,
         "number_of_trips": number_of_trips,
+        "first_vehicle_return" : first_vehicle_return,
+        "parcels_by_arrival_hour" : parcels_by_arrival_hour
     }
 
 def main(argv: Optional[List[str]] = None) -> int:
