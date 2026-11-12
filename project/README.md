@@ -27,7 +27,7 @@ python3 -m solution.performance_monitor --data data --day day_001 --log results/
 ```
 
 The simulator writes `log.txt`; the performance monitor writes `metrics.json` next to it.
-Replace `nearest_neighbour_window` with any module name from the table above.
+Replace `nearest_neighbour_window` with any module name ```solution.policies.[Module Name]```from the table above.
 
 ## 2. Reproduce all results (all policies, all 20 days)
 
@@ -64,11 +64,11 @@ Replace `nearest_neighbour_window` with any policy folder name in `results/`.
 
 | Policy | On-time rate | Delivery rate | Avg lateness | Early | Late | Undelivered | Trips |
 |---|---|---|---|---|---|---|---|
-| baseline | 27.4% | 40.5% | 214 min | 0 | 104 | 472 | 20.7 |
-| window_priority_1pass | 18.0% | 52.3% | 136 min | 0 | 272 | 378 | 21.3 |
-| window_priority_2pass | 40.3% | 46.1% | 271 min | 0 | 46 | 428 | 20.8 |
-| nearest_neighbour | 64.0% | 95.9% | 49 min | 145 | 108 | 32 | 33.9 |
-| nearest_neighbour_window | 80.0% | 96.0% | 83 min | 0 | 127 | 31 | 34.3 |
+| baseline | 27.4% | 40.5% | 214.2 min | 0 | 103.6 | 472.3 | 20.7 |
+| window_priority_1pass | 18.0% | 52.3% | 135.7 min | 0 | 272.4 | 378.3 | 21.3 |
+| window_priority_2pass | 40.3% | 46.1% | 271.2 min | 0 | 46.0 | 428.0 | 20.8 |
+| nearest_neighbour | 64.0% | 95.9% | 48.5 min | 145.0 | 108.0 | 32.4 | 33.9 |
+| nearest_neighbour_window | 80.0% | 96.0% | 83.2 min | 0 | 127.2 | 31.5 | 34.3 |
 
 Early, Late and Undelivered are parcels per day. Trips are per day across the fleet.
 
@@ -92,7 +92,20 @@ python3 solution/hourly_on_time_rates.py nearest_neighbour_window
 Prints, for one policy, the on-time rate and early deliveries by the hour parcels arrive at the hub, and the earliest time any vehicle returns from a trip.
 Replace `nearest_neighbour_window` with any policy folder name in `results/`.
 
-For `nearest_neighbour_window` the on-time rates are 95.3% (08:00), 0.0% (09:00), 86.7% (10:00), 79.5% (11:00), 74.4% (12:00), 95.0% (15:00), 15.4% (16:00) and 0.0% (17:00), and the earliest vehicle return is 10:01.
+For `nearest_neighbour_window` the on-time rates are as displayed on the table below:
+
+> Note: the earliest vehicle return is 10:01.
+
+| Time Slot | On-Time Rate |
+| :--- | :--- |
+| **08:00** | 95.3% |
+| **09:00** | 0.0% | No vehicles available (earliest return at 10:01) |
+| **10:00** | 86.7% | 
+| **11:00** | 79.5% |
+| **12:00** | 74.4% |
+| **15:00** | 95.0% |
+| **16:00** | 15.4% |
+| **17:00** | 0.0% |
 
 ## Metrics (`solution/performance_monitor.py`)
 - `on_time_rate` (primary): parcels delivered within their window ÷ all parcels
