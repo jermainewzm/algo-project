@@ -66,8 +66,8 @@ Replace `nearest_neighbour_window` with any policy folder name in `results/`.
 |---|---|---|---|---|---|---|---|
 | baseline | 27.4% | 40.5% | 214.2 min | 0 | 103.6 | 472.3 | 20.7 |
 | window_priority_1pass | 18.0% | 52.3% | 135.7 min | 0 | 272.4 | 378.3 | 21.3 |
-| window_priority_2pass | 40.3% | 46.1% | 271.2 min | 0 | 46.0 | 428.0 | 20.8 |
-| nearest_neighbour | 64.0% | 95.9% | 48.5 min | 145.0 | 108.0 | 32.4 | 33.9 |
+| window_priority_2pass | 40.3% | 46.1% | 271.3 min | 0 | 46.0 | 428.0 | 20.8 |
+| nearest_neighbour | 64.0% | 95.9% | 48.5 min | 144.9 | 108.0 | 32.4 | 33.9 |
 | nearest_neighbour_window | 80.0% | 96.0% | 83.2 min | 0 | 127.2 | 31.5 | 34.3 |
 
 Early, Late and Undelivered are parcels per day. Trips are per day across the fleet.
